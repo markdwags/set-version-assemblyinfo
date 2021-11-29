@@ -32,6 +32,8 @@ function Update-SourceVersion {
   Param ([string]$Version)
   $NewVersion = 'AssemblyVersion("' + $Version + '")';
   $NewFileVersion = 'AssemblyFileVersion("' + $Version + '")';
+  $NewInformationalVersion = 'AssemblyInformationalVersion("' + $Version + '")';
+  
 
   foreach ($o in $input) {
     Write-output $o.FullName
@@ -40,6 +42,7 @@ function Update-SourceVersion {
     Get-Content $o.FullName -encoding utf8 |
     % { $_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', $NewVersion } |
     % { $_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', $NewFileVersion }  |
+    % { $_ -replace 'AssemblyInformationalVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', $NewInformationalVersion }  |
     Set-Content $TmpFile -encoding utf8
     
     move-item $TmpFile $o.FullName -force
