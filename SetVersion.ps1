@@ -4,17 +4,18 @@
 #
 # usage:  
 #  from cmd.exe: 
-#     powershell.exe SetVersion.ps1  2.8.3.0
+#     powershell.exe SetVersion.ps1 2.8.3.0 2.8.3.0-beta123
 # 
 #  from powershell.exe prompt: 
-#     .\SetVersion.ps1  2.8.3.0
+#     .\SetVersion.ps1 2.8.3.0 2.8.3.0-beta123
 #
 # last saved Time-stamp: <Wednesday, April 23, 2008  11:52:15  (by dinoch)>
 # modified by dannevesdantas on 03-11-2021
 #
 
 param (
-  [Parameter(Mandatory = $true)][string]$version
+  [Parameter(Mandatory = $true)][string]$version,
+  [Parameter(Mandatory = $true)][string]$infoVersion
 )
 
 function Usage {
@@ -29,9 +30,10 @@ function Usage {
 
 
 function Update-SourceVersion {
-  Param ([string]$Version)
+  Param ([string]$Version, [string]$InfoVersion)
   $NewVersion = 'AssemblyVersion("' + $Version + '")';
   $NewFileVersion = 'AssemblyFileVersion("' + $Version + '")';
+  $NewInformationalVersion = 'AssemblyInformationalVersion("' + $InfoVersion + '")';
 
   foreach ($o in $input) {
     Write-output $o.FullName
@@ -40,6 +42,7 @@ function Update-SourceVersion {
     Get-Content $o.FullName -encoding utf8 |
     % { $_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', $NewVersion } |
     % { $_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', $NewFileVersion }  |
+    % { $_ -replace 'AssemblyInformationalVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', $NewInformationalVersion }  |
     Set-Content $TmpFile -encoding utf8
     
     move-item $TmpFile $o.FullName -force
@@ -47,9 +50,9 @@ function Update-SourceVersion {
 }
 
 
-function Update-AllAssemblyInfoFiles ( $version ) {
+function Update-AllAssemblyInfoFiles ( $version, $infoVersion ) {
   foreach ($file in "AssemblyInfo.cs", "AssemblyInfo.vb" ) {
-    get-childitem -recurse | ? { $_.Name -eq $file } | Update-SourceVersion $version ;
+    get-childitem -recurse | ? { $_.Name -eq $file } | Update-SourceVersion $version $infoVersion ;
   }
 }
 
@@ -58,7 +61,7 @@ function Update-AllAssemblyInfoFiles ( $version ) {
 $r = [System.Text.RegularExpressions.Regex]::Match($version, "^[0-9]+(\.[0-9]+){1,3}$");
 
 if ($r.Success) {
-  Update-AllAssemblyInfoFiles $version;
+  Update-AllAssemblyInfoFiles $version $infoVersion;
 }
 else {
   Write-Error -Message "Bad Input! From powershell.exe prompt: .\SetVersion.ps1 2.8.3.0" -Category InvalidArgument -ErrorAction Stop
