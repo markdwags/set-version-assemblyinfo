@@ -21,10 +21,10 @@ param (
 function Usage {
   echo "Usage: ";
   echo "  from cmd.exe: ";
-  echo "     powershell.exe SetVersion.ps1  2.8.3.0";
+  echo "     powershell.exe SetVersion.ps1 2.8.3.0 2.8.3.0-beta";
   echo " ";
   echo "  from powershell.exe prompt: ";
-  echo "     .\SetVersion.ps1  2.8.3.0";
+  echo "     .\SetVersion.ps1 2.8.3.0 2.8.3.0-beta";
   echo " ";
 }
 
